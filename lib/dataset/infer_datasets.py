@@ -24,7 +24,7 @@ class InferenceDataset(Dataset):
             self.metafile = '/export/scratch/compvis/datasets/taichi/taichi/meta_with_10_20.p'
             self.datapath = '/export/scratch/compvis/datasets/taichi/taichi/'
         else:
-            self.metafile = "/export/scratch/compvis/datasets/human3.6M/video_prediction/h36m_test_smaller.p"
+            self.metafile = "/export/scratch/compvis/datasets/human3.6M/video_prediction/h36_test_smaller.p"
             self.datapath = '/export/scratch/compvis/datasets/human3.6M/video_prediction'
 
         if 'DATAPATH' in os.environ:
