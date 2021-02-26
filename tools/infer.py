@@ -12,6 +12,8 @@ from __future__ import print_function
 import argparse
 import os
 import pprint
+import math
+import pickle
 
 import torch
 import torch.nn.parallel
@@ -23,8 +25,6 @@ import torchvision
 import torchvision.transforms as transforms
 import numpy as np
 import cv2
-import time
-import math
 from tqdm import tqdm
 
 import _init_paths
@@ -102,12 +102,13 @@ def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
             joints = batch_joints[k]
             #joints_vis = batch_joints_vis[k]
 
-            for joint, joint_vis in zip(joints, joints):
+            for joint_id,(joint, joint_vis) in enumerate(zip(joints, joints)):
                 joint[0] = x * width + padding + joint[0]
                 joint[1] = y * height + padding + joint[1]
                 # if joint_vis[0]:
 
                 cv2.circle(ndarr, (int(joint[0]), int(joint[1])), 2, [255, 0, 0], 2)
+                ndarr = cv2.putText(ndarr,str(joint_id),(int(joint[0])+5, int(joint[1])+5),cv2.FONT_HERSHEY_SIMPLEX,.2,(0,255,0),1)
             k = k + 1
     ndarr = cv2.cvtColor(ndarr,cv2.COLOR_RGB2BGR)
     cv2.imwrite(file_name, ndarr)
@@ -156,63 +157,17 @@ def infer(config, val_loader, val_dataset, model, output_dir,device,num_keypoint
             else:
                 output = outputs
 
-            # if config.TEST.FLIP_TEST:
-            #     input_flipped = input.flip(3)
-            #     outputs_flipped = model(input_flipped)
-            #
-            #     if isinstance(outputs_flipped, list):
-            #         output_flipped = outputs_flipped[-1]
-            #     else:
-            #         output_flipped = outputs_flipped
-            #
-            #     output_flipped = flip_back(output_flipped.cpu().numpy(),
-            #                                val_dataset.flip_pairs)
-            #     output_flipped = torch.from_numpy(output_flipped.copy()).cuda()
-            #
-            #
-            #     # feature is not aligned, shift flipped heatmap for higher accuracy
-            #     if config.TEST.SHIFT_HEATMAP:
-            #         output_flipped[:, :, :, 1:] = \
-            #             output_flipped.clone()[:, :, :, 0:-1]
-            #
-            #     output = (output + output_flipped) * 0.5
-
-
-
             num_images = input.size(0)
-            # # measure accuracy and record loss
-            # losses.update(loss.item(), num_images)
-            # _, avg_acc, cnt, pred = accuracy(output.cpu().numpy(),
-            #                                  target.cpu().numpy())
 
             # multiply by four,to obtain resolution of 256x256
-            pred, _ = get_max_preds(output.cpu().numpy()) * 4
+            pred, _ = get_max_preds(output.cpu().numpy())
+            pred *= 4
 
-            # acc.update(avg_acc, cnt)
-            #
-            # # measure elapsed time
-            # batch_time.update(time.time() - end)
-            # end = time.time()
-            #
-            # c = meta['center'].numpy()
-            # s = meta['scale'].numpy()
-            # score = meta['score'].numpy()
-
-            # preds, maxvals = get_final_preds(
-            #     config, output.clone().cpu().numpy(), c, s)
-            #
-            # all_preds[idx:idx + num_images, :, 0:2] = preds[:, :, 0:2]
-            # all_preds[idx:idx + num_images, :, 2:3] = maxvals
-            # double check this all_boxes parts
-            # all_boxes[idx:idx + num_images, 0:2] = c[:, 0:2]
-            # all_boxes[idx:idx + num_images, 2:4] = s[:, 0:2]
-            # all_boxes[idx:idx + num_images, 4] = np.prod(s*200, 1)
-            # all_boxes[idx:idx + num_images, 5] = score
-            # image_path.extend(meta['image'])
 
             idx += num_images
             data_dict['keypoints_abs'][ids] = pred
-            data_dict['keypoints_rel'][ids] = pred / 256.
+            keypoints_rel = pred / 256.
+            data_dict['keypoints_rel'][ids] = keypoints_rel
 
             if i % config.PRINT_FREQ == 0:
                 prefix = '{}_{}'.format(
@@ -223,6 +178,8 @@ def infer(config, val_loader, val_dataset, model, output_dir,device,num_keypoint
                                   pred,
                                   prefix)
 
+        with open(os.path.join(val_dataset.datapath,'meta_frange_with_keypoints.p'), 'wb') as f:
+            pickle.dump(data_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def main():
@@ -246,7 +203,7 @@ def main():
 
     if cfg.TEST.MODEL_FILE:
         logger.info('=> loading model from {}'.format(cfg.TEST.MODEL_FILE))
-        model.load_state_dict(torch.load(cfg.TEST.MODEL_FILE), strict=False)
+        model.load_state_dict(torch.load(cfg.TEST.MODEL_FILE,map_location='cpu'), strict=False)
     else:
         model_state_file = os.path.join(
             final_output_dir, 'final_state.pth'
@@ -268,7 +225,8 @@ def main():
         batch_size=cfg.TEST.BATCH_SIZE_PER_GPU,
         shuffle=True,
         num_workers=cfg.WORKERS,
-        pin_memory=True
+        pin_memory=True,
+        drop_last=False
     )
 
     # evaluate on validation set
