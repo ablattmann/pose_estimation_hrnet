@@ -180,6 +180,10 @@ def infer(config, val_loader, val_dataset, model, output_dir,device,num_keypoint
 
 def main():
     from models.pose_estimator.lib.dataset.infer_datasets import InferenceDataset
+    from models.pose_estimator.lib.models.pose_resnet import get_pose_net as get_pose_resnet
+    from models.pose_estimator.lib.models.pose_hrnet import get_pose_net as get_pose_hrnet
+
+    model_fns = {'pose_resnet': get_pose_resnet, 'pose_hrnet': get_pose_hrnet}
 
     args = parse_args()
     update_config(cfg, args)
@@ -195,7 +199,7 @@ def main():
     torch.backends.cudnn.deterministic = cfg.CUDNN.DETERMINISTIC
     torch.backends.cudnn.enabled = cfg.CUDNN.ENABLED
     # fixme not working
-    model = eval('models.pose_estimator.lib.models.'+cfg.MODEL.NAME+'.get_pose_net')(
+    model = model_fns[cfg.MODEL.NAME](
         cfg, is_train=False
     )
 
