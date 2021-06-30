@@ -29,7 +29,7 @@ from tqdm import tqdm
 
 from models.pose_estimator.lib.config import cfg
 from models.pose_estimator.lib.config import update_config
-from models.pose_estimator.lib.core.inference import get_final_preds,get_max_preds
+from models.pose_estimator.lib.core.inference import get_max_preds
 
 
 
