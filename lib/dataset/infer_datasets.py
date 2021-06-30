@@ -17,10 +17,10 @@ class InferenceDataset(Dataset):
                                      T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         assert self.dataset in ['iper','h36m','taichi']
 
-        if self.dataset == 'iper':
+        if self.dataset == 'IperDataset':
             self.metafile = 'data/IperDataset/meta.p'
             self.datapath = 'data/IperDataset'
-        elif self.dataset == 'taichi':
+        elif self.dataset == 'TaichiDataset':
             self.metafile = 'data/TaichiDataset/meta.p'
             self.datapath = 'data/TaichiDataset'
         else:
