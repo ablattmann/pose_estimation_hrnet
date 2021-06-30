@@ -27,20 +27,15 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 
-import _init_paths
-from config import cfg
-from config import update_config
-from core.inference import get_final_preds,get_max_preds
-from utils.transforms import flip_back
-from core.evaluate import accuracy
+from models.pose_estimator.lib.config import cfg
+from models.pose_estimator.lib.config import update_config
+from models.pose_estimator.lib.core.inference import get_final_preds,get_max_preds
 
 
 
-from utils.utils import create_logger
-from dataset.infer_datasets import InferenceDataset
 
-import dataset
-import models
+from models.pose_estimator.lib.utils.utils import create_logger
+
 
 
 def parse_args():
@@ -78,7 +73,7 @@ def parse_args():
 
 
 def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
-                                 file_name, nrow=8, padding=2):
+                                 file_name, nrow=8, padding=2,return_image=False):
     '''
     batch_image: [batch_size, channel, height, width]
     batch_joints: [batch_size, num_joints, 3],
@@ -110,6 +105,9 @@ def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
                 cv2.circle(ndarr, (int(joint[0]), int(joint[1])), 2, [255, 0, 0], 2)
                 ndarr = cv2.putText(ndarr,str(joint_id),(int(joint[0])+5, int(joint[1])+5),cv2.FONT_HERSHEY_SIMPLEX,.2,(0,255,0),1)
             k = k + 1
+
+    if return_image:
+        return ndarr
     ndarr = cv2.cvtColor(ndarr,cv2.COLOR_RGB2BGR)
     cv2.imwrite(file_name, ndarr)
 
@@ -117,8 +115,6 @@ def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
 def save_debug_images(config, input,# meta,
                       joints_pred,
                       prefix):
-    if not config.DEBUG.DEBUG:
-        return
 
 
     if config.DEBUG.SAVE_BATCH_IMAGES_PRED:
@@ -183,6 +179,8 @@ def infer(config, val_loader, val_dataset, model, output_dir,device,num_keypoint
 
 
 def main():
+    from models.pose_estimator.lib.dataset.infer_datasets import InferenceDataset
+
     args = parse_args()
     update_config(cfg, args)
 

@@ -18,7 +18,7 @@ from pycocotools.cocoeval import COCOeval
 import json_tricks as json
 import numpy as np
 
-from dataset.JointsDataset import JointsDataset
+from models.pose_estimator.lib.dataset.JointsDataset import JointsDataset
 from nms.nms import oks_nms
 from nms.nms import soft_oks_nms
 
