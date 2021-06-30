@@ -194,12 +194,13 @@ def main():
     cudnn.benchmark = cfg.CUDNN.BENCHMARK
     torch.backends.cudnn.deterministic = cfg.CUDNN.DETERMINISTIC
     torch.backends.cudnn.enabled = cfg.CUDNN.ENABLED
-
-    model = eval('models.'+cfg.MODEL.NAME+'.get_pose_net')(
+    # fixme not working
+    model = eval('models.pose_estimator.lib.models.'+cfg.MODEL.NAME+'.get_pose_net')(
         cfg, is_train=False
     )
 
     if cfg.TEST.MODEL_FILE:
+
         logger.info('=> loading model from {}'.format(cfg.TEST.MODEL_FILE))
         model.load_state_dict(torch.load(cfg.TEST.MODEL_FILE,map_location='cpu'), strict=False)
     else:
