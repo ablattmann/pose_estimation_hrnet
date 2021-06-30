@@ -18,14 +18,14 @@ class InferenceDataset(Dataset):
         assert self.dataset in ['iper','h36m','taichi']
 
         if self.dataset == 'iper':
-            self.metafile = '/export/scratch/compvis/datasets/iPER/processed_256_resized/iper_256_resized_frange.p'
-            self.datapath = '/export/scratch/compvis/datasets/iPER/processed_256_resized'
+            self.metafile = 'data/IperDataset/meta.p'
+            self.datapath = 'data/IperDataset'
         elif self.dataset == 'taichi':
-            self.metafile = '/export/scratch/compvis/datasets/taichi/taichi/meta_with_10_20.p'
-            self.datapath = '/export/scratch/compvis/datasets/taichi/taichi/'
+            self.metafile = 'data/TaichiDataset/meta.p'
+            self.datapath = 'data/TaichiDataset'
         else:
-            self.metafile = "/export/scratch/compvis/datasets/human3.6M/video_prediction/h36_test_smaller.p"
-            self.datapath = '/export/scratch/compvis/datasets/human3.6M/video_prediction'
+            self.metafile = "data/Human36mDataset/meta.p"
+            self.datapath = 'data/Human36mDataset'
 
         if 'DATAPATH' in os.environ:
             self.metafile = path.join(os.environ['DATAPATH'],self.metafile[1:])

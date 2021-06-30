@@ -174,7 +174,7 @@ def infer(config, val_loader, val_dataset, model, output_dir,device,num_keypoint
                                   pred,
                                   prefix)
 
-        with open(os.path.join(val_dataset.datapath,'meta_frange_with_keypoints.p'), 'wb') as f:
+        with open(os.path.join(val_dataset.datapath,'meta_kp.p'), 'wb') as f:
             pickle.dump(data_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
