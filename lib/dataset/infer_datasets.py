@@ -15,21 +15,15 @@ class InferenceDataset(Dataset):
         self.dataset = dataset
         self.transforms = T.Compose([T.ToTensor(),
                                      T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-        assert self.dataset in ['iper','h36m','taichi']
+        assert self.dataset in ['IperDataset','TaichiDataset']
 
         if self.dataset == 'IperDataset':
             self.metafile = 'data/IperDataset/meta.p'
             self.datapath = 'data/IperDataset'
-        elif self.dataset == 'TaichiDataset':
+        else:
             self.metafile = 'data/TaichiDataset/meta.p'
             self.datapath = 'data/TaichiDataset'
-        else:
-            self.metafile = "data/Human36mDataset/meta.p"
-            self.datapath = 'data/Human36mDataset'
 
-        if 'DATAPATH' in os.environ:
-            self.metafile = path.join(os.environ['DATAPATH'],self.metafile[1:])
-            self.datapath = path.join(os.environ['DATAPATH'],self.datapath[1:])
         with open(self.metafile,'rb') as f:
             self.data = pickle.load(f)
 
