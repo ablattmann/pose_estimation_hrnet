@@ -19,17 +19,13 @@ class InferenceDataset(Dataset):
 
         if self.dataset == 'IperDataset':
             self.metafile = 'data/IperDataset/meta.p'
-            self.datapath = 'data/IperDataset'
         else:
             self.metafile = 'data/TaichiDataset/meta.p'
-            self.datapath = 'data/TaichiDataset'
+
 
         with open(self.metafile,'rb') as f:
             self.data = pickle.load(f)
 
-        # self.data["img_path"] = [
-        #     path.join(self.datapath, p if not p.startswith("/") else p[1:]) for p in self.data["img_path"]
-        # ]
 
         self.data = {key: np.asarray(self.data[key]) for key in self.data}
 
@@ -51,9 +47,7 @@ class InferenceDataset(Dataset):
 
     def _get_img(self,idx):
 
-        img_path_rel = self.data['img_path'][idx]
-
-        img_path = path.join(self.datapath, img_path_rel if not img_path_rel.startswith("/") else img_path_rel[1:])
+        img_path = self.data['img_path'][idx]
 
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
