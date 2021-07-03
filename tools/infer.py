@@ -140,6 +140,7 @@ def infer(config, val_loader, val_dataset, model, output_dir,device,num_keypoint
     imgnums = []
     idx = 0
     data_dict = val_dataset.data.copy()
+    print(data_dict['flow_paths'][0])
     data_dict.update({'keypoints_abs': np.zeros((len(val_dataset),num_keypoints,2)),
                       'keypoints_rel': np.zeros((len(val_dataset),num_keypoints,2))})
     with torch.no_grad():
@@ -174,7 +175,8 @@ def infer(config, val_loader, val_dataset, model, output_dir,device,num_keypoint
                                   pred,
                                   prefix)
 
-        with open(os.path.join(val_dataset.datapath,'meta_kp.p'), 'w+b') as f:
+        print(data_dict['flow_paths'][0])
+        with open(os.path.join(val_dataset.datapath,'meta_kp.p'), 'wb') as f:
             pickle.dump(data_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 

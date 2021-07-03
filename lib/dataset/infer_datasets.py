@@ -19,9 +19,10 @@ class InferenceDataset(Dataset):
 
         if self.dataset == 'IperDataset':
             self.metafile = 'data/IperDataset/meta.p'
+            self.datapath='data/IperDataset'
         else:
             self.metafile = 'data/TaichiDataset/meta.p'
-
+            self.datapath = 'data/TaichiDataset'
 
         with open(self.metafile,'rb') as f:
             self.data = pickle.load(f)
